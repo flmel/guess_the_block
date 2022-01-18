@@ -1,19 +1,15 @@
 import * as contract from "../assembly";
 
 describe("Contract", () => {
-  // VIEW method tests
-
-  it("says hello", () => {
-    expect(contract.helloWorld()).toStrictEqual("hello world")
+  it("gives the execution block", () => {
+    // TODO:
   })
 
-  it("reads data", () => {
-    expect(contract.read("some key")).toStrictEqual("🚫 Key [ some key ] not found in storage. ( storage [ 0 bytes ] )")
+  it("rewards the user", () => {
+    // TODO:
   })
 
-  // CHANGE method tests
-
-  it("saves data to contract storage", () => {
-    expect(contract.write("some-key", "some value")).toStrictEqual("✅ Data saved. ( storage [ 18 bytes ] )")
+  it("gives feedback or wherther high or low guess", () => {
+    // TODO:
   })
 })

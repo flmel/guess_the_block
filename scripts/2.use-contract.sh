@@ -21,25 +21,15 @@ echo "(run this script again to see changes made by this file)"
 echo ---------------------------------------------------------
 echo
 
-near view $CONTRACT helloWorld
-
-echo
-echo
-
-near view $CONTRACT read '{"key":"some-key"}'
+near view $CONTRACT get_block
 
 echo
 echo
 echo ---------------------------------------------------------
-echo "Step 2: Call 'change' functions on the contract"
+echo "Step 2: Call 'guess_block' function on the contract"
 echo ---------------------------------------------------------
 echo
 
-# the following line fails with an error because we can't write to storage without signing the message
-# --> FunctionCallError(HostError(ProhibitedInView { method_name: "storage_write" }))
-# near view $CONTRACT write '{"key": "some-key", "value":"some value"}'
-near call $CONTRACT write '{"key": "some-key", "value":"some value"}' --accountId $CONTRACT
+near view $CONTRACT guess_block  '{"guessed_block_index": "79344664"}'
 
-echo
-echo "now run this script again to see changes made by this file"
 exit 0

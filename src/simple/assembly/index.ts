@@ -1,26 +1,32 @@
-import { storage, Context } from "near-sdk-as"
+import { Context } from "near-sdk-as"
 
-// return the string 'hello world'
-export function helloWorld(): string {
-  return 'hello world'
+// get the current execution block id 
+export function get_block(): string {
+  return `The current execution block is ${Context.blockIndex} use that information wisely.`
 }
 
-// read the given key from account (contract) storage
-export function read(key: string): string {
-  if (storage.hasKey(key)) {
-    return `✅ Key [ ${key} ] has value [ ${storage.getString(key)!} ]`
+// guess the tx execution block id 
+export function guess_block(guessed_block_index: u64): string {
+  // for clarification
+  const actual_block_index = Context.blockIndex
+
+  if (guessed_block_index == actual_block_index) {
+    // TODO: Reward the Context.sender()
+    return `Hoaa you've guessed correctly ${Context.blockIndex} you shall be rewarded!`
   } else {
-    return `🚫 Key [ ${key} ] not found in storage. ( ${storageReport()} )`
+    return 'Sorry, you ' + missed_by(guessed_block_index, actual_block_index) + ' Better luck next time!'
   }
 }
 
-// write the given value at the given key to account (contract) storage
-export function write(key: string, value: string): string {
-  storage.set(key, value)
-  return `✅ Data saved. ( ${storageReport()} )`
-}
+// calculates "the missed by blocks" and reterns a string
+function missed_by(guessed_block: u64, actual_block: u64): string {
+  // float difference since in AS type Number is float
+  // TODO: Parse/Typecast it 
+  const block_difference = Math.abs(f64(guessed_block - actual_block))
 
-// private helper method used by read() and write() above
-function storageReport(): string {
-  return `storage [ ${Context.storageUsage} bytes ]`
+  if (guessed_block > actual_block) {
+    return `overshot by ${block_difference} blocks!`
+  } else {
+    return `undershot by ${block_difference} blocks!`
+  }
 }
