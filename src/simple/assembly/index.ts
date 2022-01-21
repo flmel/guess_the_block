@@ -1,4 +1,6 @@
-import { Context } from "near-sdk-as"
+import { Context, logging, RNG, ContractPromiseBatch, u128, context } from "near-sdk-as"
+import { Contract } from "../../singleton/assembly";
+import { ONE_NEAR, XCC_GAS, assert_self, assert_single_promise_success } from "../../utils";
 
 // get the current execution block id 
 export function get_block(): string {
@@ -7,22 +9,26 @@ export function get_block(): string {
 
 // guess the tx execution block id 
 export function guess_block(guessed_block_index: u64): string {
+  logging.log(`sender ${Context.sender}`)
+  logging.log(`balance of sender  ${Context.accountBalance}`)
+  logging.log(`contract name ${Context.contractName}`)
+
   // for clarification
-  const actual_block_index = Context.blockIndex
+  // const actual_block_index = Context.blockIndex
+  const actual_block_index = 11
 
   if (guessed_block_index == actual_block_index) {
-    // TODO: Reward the Context.sender()
+    // reward_sender()
+
     return `Hoaa you've guessed correctly ${Context.blockIndex} you shall be rewarded!`
   } else {
-    return 'Sorry, you ' + missed_by(guessed_block_index, actual_block_index) + ' Better luck next time!'
+    return `Sorry, you ${missed_by(guessed_block_index, actual_block_index)} Better luck next time!`
   }
 }
 
-// calculates "the missed by blocks" and reterns a string
+// calculates "the missed by blocks" and returns a string
 function missed_by(guessed_block: u64, actual_block: u64): string {
-  // float difference since in AS type Number is float
-  // TODO: Parse/Typecast it 
-  const block_difference = Math.abs(f64(guessed_block - actual_block))
+  const block_difference = abs(guessed_block as i64 - actual_block as i64)
 
   if (guessed_block > actual_block) {
     return `overshot by ${block_difference} blocks!`
@@ -30,3 +36,16 @@ function missed_by(guessed_block: u64, actual_block: u64): string {
     return `undershot by ${block_difference} blocks!`
   }
 }
+
+function reward_sender(): void {
+  ContractPromiseBatch
+    .create("ethuil.testnet")
+    .transfer(ONE_NEAR)
+}
+
+// function on_transfer_complete(): void {
+//   assert_self()
+//   assert_single_promise_success()
+
+//   logging.log("transfer complete")
+// }
