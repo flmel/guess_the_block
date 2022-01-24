@@ -4,23 +4,6 @@ import { ONE_NEAR, XCC_GAS } from "../../utils";
 
 @nearBindgen
 export class Contract {
-  public won: bool = false
-
-  constructor(won: bool) {
-    this.won = won
-  }
-
-  // test_fn(): Map<string, string | bool | u64> {
-
-
-  //   return
-  // }
-
-  test_fn(): void {
-    const xx = object.assign({}, { "name": "yes" })
-  }
-
-
   // returns the execution block height
   get_block(): u64 {
     return Context.blockIndex
