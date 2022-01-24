@@ -4,6 +4,23 @@ import { ONE_NEAR, XCC_GAS } from "../../utils";
 
 @nearBindgen
 export class Contract {
+  public won: bool = false
+
+  constructor(won: bool) {
+    this.won = won
+  }
+
+  // test_fn(): Map<string, string | bool | u64> {
+
+
+  //   return
+  // }
+
+  test_fn(): void {
+    const xx = object.assign({}, { "name": "yes" })
+  }
+
+
   // returns the execution block height
   get_block(): u64 {
     return Context.blockIndex
@@ -12,10 +29,9 @@ export class Contract {
   // guess the tx execution block id 
   guess_block(guessed_block_index: u64): string {
     // for clarification
-    // const actual_block_index = Context.blockIndex
-    const actual_block_index = 11; // shortcircuit
-    //  guessed_block == actual_block ? this.correct_guess : this.wrong_guess
-    if (guessed_block_index == actual_block_index) {
+    const actual_block_index = Context.blockIndex
+
+    if (guessed_block_index == actual_block_index || 42) {
       this.reward_sender()
       return `Whoaa! you've guessed correctly ${Context.blockIndex} you shall be rewarded!`
     } else {
@@ -23,9 +39,11 @@ export class Contract {
     }
   }
 
-  // private correct_guess(): void {
-
+  // private correct_guess(): Contract {
+  //   this.reward_sender()
+  //   return new Contract({ "won", true})
   // }
+
   // private wrong_guess(): void {
   // }
 

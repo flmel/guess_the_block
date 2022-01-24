@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snipe the Block</title>
+  <link rel="icon" href="stb_logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Teko:wght@600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.8.1/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/near-api-js@0.41.0/dist/near-api-js.min.js"></script>
+  <style>
+    h1,
+    h4 {
+      font-family: 'Teko', sans-serif;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100">
+  <div class="flex justify-center">
+    <div class="flex flex-col w-1/2 mt-24">
+      <!-- header -->
+      <div class="flex justify-between items-center">
+        <div class="flex items-center">
+          <img src=" ./stb_logo.svg" class="h-14" alt="">
+          <h1 class="text-3xl">SNIPE THE BLOCK</h1>
+        </div>
+        <!-- login -->
+        <div x-data="auth" class="">
+          <div x-show="!signed">
+            <button @click="sign_in()" class="bg-blue-500 py-1 px-1 font-bold text-xs">Connect Wallet</button>
+          </div>
+          <div x-show="signed" class="inline-flex">
+            <a href="https://wallet.testnet.near.org" x-text="account_id"
+              class=" border-l-4 border-red-400 px-1 hover:underline"></a>
+            <button @click="sign_out()" class="bg-red-400 py-1 px-1 font-bold text-xs">Disconnect</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="inline-flex border-2 border-black mt-1">
+        <!-- left -->
+        <div class="bg-gray-200 text-gray-600 py-6 px-4 w-1/2" x-data="game" :class="shot ? 'bg-green-300' : ''">
+          <!-- started -->
+          <div class="leading-none">
+            <span class="text-sm leading-none">the block started at:</span>
+            <h4 class="text-5xl leading-none" x-text="block_index"></h4>
+          </div>
+          <!-- shoot -->
+
+          <!-- <input type="text" placeholder="eg. 79955137" name="block" id="guess_block"
+              class="text-right focus:outline-none" x-model="user_input">
+            <button @click="guess_block(user_input)" class="py-2 px-4 bg-blue-500 text-gray-100">Fire!</button> -->
+          <form>
+            <div class="flex flex-col overflow-hidden sm:flex-row">
+              <input
+                class="py-3 w-2/3 px-4 bg-gray-200 text-gray-800 border-gray-300 border-2 outline-none placeholder-gray-500 focus:bg-gray-100"
+                type="text" name="email" placeholder="79955137" required>
+              <button
+                class="py-3 w-1/3 px-4 bg-gray-700 text-gray-100 font-semibold uppercase hover:bg-gray-600">shoot!</button>
+            </div>
+          </form>
+
+          <div class="border-8 border-orange-300 px-4 py-2 bg-orange-100 mt-10">
+            <h3>Bulleye!</h3>
+            <p class="text-sm leading-none">You shot correctly at 42 you shall be rewarded!</p>
+          </div>
+
+        </div>
+        <!-- right -->
+        <div class="py-6 px-4 w-1/2">
+          <h4 class="text-2xl">About</h4>
+          <p class="leading-tight text-sm"><i>"Snipe the block"</i> is a very simple toy contract deployed on
+            the <a href="http://near.org" class="underline">NEAR</a>
+            <strong>testnet</strong>.
+            Your objective is to guess the block that your transaction (<i>"shot"</i>) is executed on.
+          </p>
+          <p class="leading-tight text-sm mt-2">
+            The block started running up the hill the moment it saw you stumbling upon that page, the contract will
+            give you feedback on your shots. <strong>Bulleye the block and you will be rewarded ONE testnet
+              NEAR</strong>!
+          </p>
+
+          <p class="leading-tight text-sm mt-4">
+            If you want to learn how to develop blockchain applications visit <a href="http://near.university/"
+              class="underline">NEAR University!</a>
+          </p>
+
+          <hr class="my-2 text-gray-300">
+
+          <a href="https://github.com/flmel/guess_the_block">
+            <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"
+              alt="">
+          </a>
+        </div>
+      </div>
+      <footer>
+        <!-- stats -->
+        <div class="flex text-sm leading-none font-semibold justify-end" id="stats">
+          <ul class="list-none flex space-x-2 border-b border-black">
+            <li>cheat_win: 42</li>
+          </ul>
+        </div>
+      </footer>
+    </div>
+  </div>
+</body>
+
+<script>
+  const near = new nearApi.Near({
+    keyStore: new nearApi.keyStores.BrowserLocalStorageKeyStore(),
+    networkId: 'testnet',
+    nodeUrl: 'https://rpc.testnet.near.org',
+    walletUrl: 'https://wallet.testnet.near.org'
+  });
+
+  // create wallet connection
+  const wallet = new nearApi.WalletConnection(near);
+
+  // connect to a NEAR smart contract
+  const contract = new nearApi.Contract(wallet.account(), 'dev-1642793877627-82695437710510', {
+    viewMethods: ['get_block'],
+    changeMethods: ['guess_block']
+  });
+
+  // auth
+  function auth() {
+    const accountId = wallet.getAccountId();
+    return {
+      signed: wallet.isSignedIn(),
+      account_id: accountId,
+      sign_in() {
+        wallet.requestSignIn(
+          "dev-1642793877627-82695437710510",
+          "Snipe The Block"
+        )
+      },
+      sign_out() {
+        wallet.signOut();
+        localStorage.removeItem(`near-api-js:keystore:${accountId}:testnet`);
+        accountId.value = wallet.getAccountId()
+        this.signed = false
+      },
+      // TESTING
+      test() {
+        console.log("test")
+      }
+    }
+  }
+  // game
+  function game() {
+    const bid_promise = contract.get_block()
+      .then(bid => bid)
+
+    return {
+      shot: false,
+      user_input: "",
+      block_index: async () => {
+        return await bid_promise
+      },
+      guess_block(user_input) {
+        contract.guess_block({ guessed_block_index: user_input })
+          .then(message => console.log(message))
+      }
+    }
+  }
+</script>
+
+</html>
