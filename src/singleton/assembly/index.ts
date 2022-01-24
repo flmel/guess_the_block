@@ -5,8 +5,8 @@ import { ONE_NEAR, XCC_GAS } from "../../utils";
 @nearBindgen
 export class Contract {
   // returns the execution block height
-  get_block(): string {
-    return `the current block index is ${Context.blockIndex} use that information wisely`
+  get_block(): u64 {
+    return Context.blockIndex
   }
 
   // guess the tx execution block id 
@@ -14,7 +14,7 @@ export class Contract {
     // for clarification
     // const actual_block_index = Context.blockIndex
     const actual_block_index = 11; // shortcircuit
-
+    //  guessed_block == actual_block ? this.correct_guess : this.wrong_guess
     if (guessed_block_index == actual_block_index) {
       this.reward_sender()
       return `Whoaa! you've guessed correctly ${Context.blockIndex} you shall be rewarded!`
@@ -23,9 +23,19 @@ export class Contract {
     }
   }
 
+  // private correct_guess(): void {
+
+  // }
+  // private wrong_guess(): void {
+  // }
+
+  on_reward_complete(): void {
+    logging.log("reward successful");
+  }
+
   // calculates "the missed by blocks" :: STRING
   private missed_by(guessed_block: u64, actual_block: u64): string {
-    const block_difference = abs(guessed_block - actual_block)
+    const block_difference = abs(guessed_block as i64 - actual_block as i64)
 
     if (guessed_block > actual_block) {
       return `overshot by ${block_difference} blocks!`
@@ -40,8 +50,5 @@ export class Contract {
     ContractPromiseBatch.create(Context.sender)
       .transfer(ONE_NEAR)
       .then(self).function_call("on_reward_complete", "{}", u128.Zero, XCC_GAS);
-  }
-  private on_reward_complete(): void {
-    logging.log("reward successful");
   }
 }
